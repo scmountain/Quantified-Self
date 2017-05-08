@@ -25,10 +25,6 @@ app.get('/api/foods/:id', function(request, response){
   response.json({ id: id, message: message});
 });
 
-app.post('/api/foods', function(request,response){
-  response.status(201).end();
-});
-
 app.post('/api/foods', function(request, response){
   var id = Date.now()
   var message = request.body.message

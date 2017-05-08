@@ -74,7 +74,7 @@ describe("Server", function(){
       });
     });
 
-    it('should recieve and store data', function(done){
+    it('should receive and store data', function(done){
       var message = { message: 'I dont like Pineapples on my pizza'};
 
       this.request.post('/api/foods', { form: message }, function(error, response){
