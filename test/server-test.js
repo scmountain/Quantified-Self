@@ -99,7 +99,10 @@ describe("Server", function(){
         });
 
      this.timeout(100000);
-    it('should not return 404', function(done){
+    xit('should not return 404', function(done){
+    });
+
+    it('should receive and store data', function(done){
       var food = { name: 'apple', calories: 100}
 
       close_request.post('/api/foods', {form: food}, (error, response) =>{
@@ -108,9 +111,6 @@ describe("Server", function(){
           assert.equal(response.statusCode, 200)
           done();
       });
-    });
-
-    xit('should receive and store data', function(done){
     });
   });
 });
