@@ -2,6 +2,7 @@ const assert = require('chai').assert;
 const app = require('../server');
 const request = require('request');
 
+
 const environment   = process.env.NODE_ENV || 'test'
 const configuration = require('../knexfile')[environment]
 const database      = require('knex')(configuration)
@@ -14,6 +15,7 @@ describe("Server", function(){
         done()
       });
 
+      this.timeout(100000);
       this.request = request.defaults({
           baseUrl: 'http://localhost:9876/'
         });
@@ -91,28 +93,24 @@ describe("Server", function(){
     });
   });
 
-  xdescribe('POST /api/foods', function(){
-    beforeEach(function(){
-      app.locals.foods = {}
-    });
+  describe('POST /api/foods', function(){
+    var close_request = request.defaults({
+          baseUrl: 'http://localhost:9876/'
+        });
 
-    xit('should not return 404', function(done){
-      this.request.post('/api/foods', function(error, response){
+     this.timeout(100000);
+    it('should not return 404', function(done){
+      var food = { name: 'apple', calories: 100}
+
+      close_request.post('/api/foods', {form: food}, (error, response) =>{
         if (error) { done(error) }
-        assert.notEqual(response.statusCode, 404)
-        done();
+          let parsedFood = JSON.parse(response.body.toString());
+          assert.equal(response.statusCode, 200)
+          done();
       });
     });
 
     xit('should receive and store data', function(done){
-      var message = { message: 'I dont like Pineapples on my pizza'};
-
-      this.request.post('/api/foods', { form: message }, function(error, response){
-        if (error) { done(error); }
-        done();
-        var foodCount = Object.keys(app.locals.foods).length;
-        assert.equal(foodCount, 1, `expected 1 food, found ${foodCount}`);
-      });
     });
   });
 });
