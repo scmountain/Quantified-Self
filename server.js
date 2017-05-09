@@ -1,7 +1,11 @@
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-var md5 = require('md5');
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+const md5 = require('md5');
+
+const environment   = process.env.NODE_ENV || 'development'
+const configuration = require('./knexfile')[environment]
+const database      = require('knex')(configuration)
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -18,11 +22,16 @@ app.get('/', function(request, response){
 
 app.get('/api/foods/:id', function(request, response){
   var id = request.params.id
-  var message = app.locals.foods[id];
 
-  if(!message){ return response.sendStatus(404) }
-
-  response.json({ id: id, message: message});
+  database.raw('SELECT * FROM foods WHERE foods.id = ? LIMIT 1', [id])
+    .then((data) => {
+      let food = data.rows[0]
+      if (food == null) {
+        response.sendStatus(404)
+      } else {
+        response.json(food)
+      }
+    });
 });
 
 app.post('/api/foods', function(request, response){

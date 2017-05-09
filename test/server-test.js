@@ -1,15 +1,17 @@
-var assert = require('chai').assert;
-var request = require('request');
-var app = require('../server.js');
-var pry = require('pryjs');
+const assert = require('chai').assert;
+const app = require('../server');
+const request = require('request');
 
+const environment   = process.env.NODE_ENV || 'test'
+const configuration = require('../knexfile')[environment]
+const database      = require('knex')(configuration)
 
 describe("Server", function(){
-  before(function(done){
+  before(done => {
       this.port = 9876
-      this.server = app.listen(this.port, function(err, result){
+      this.server = app.listen(this.port, (err, result) => {
         if (err) { return done(err); }
-        done();
+        done()
       });
 
       this.request = request.defaults({
@@ -17,56 +19,84 @@ describe("Server", function(){
         });
     });
 
-  after(function(){
+  after(() => {
       this.server.close();
   });
 
-  it('should exist', function(){
+  it('should exist', () => {
     assert(app);
   });
 
-  describe('GET /', function(){
-    it('should return a 200', function(done){
-      this.request.get('/', function(error, response){
+  describe('GET /', () => {
+    it('should return a 200', (done) => {
+      this.request.get('/', (error, response) => {
         if (error) { done(error) }
+
         assert.equal(response.statusCode, 200);
-        done();
+
+        done()
+      });
+    });
+
+    it('should have a body with the name of the application', (done) => {
+      var title = app.locals.title
+
+      this.request.get('/', (error, response) => {
+        if (error) { done(error) }
+
+        assert(response.body.includes(title), `"${response.body}" does not include "${title}".`)
+
+        done()
       });
     });
   });
 
-  describe('GET /api/foods/:id', function(){
-    beforeEach(function(){
-      app.locals.foods = {
-        wowowow: 'I am a banana'
-      }
+  describe('GET /api/foods/:id', () => {
+    beforeEach((done) => {
+      database.raw(`INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['Sweet Baby Rays', 2000, new Date])
+      .then(() => done())
     });
 
-    it('should return a 404 if the resource is not found', function(done){
-      this.request.get('/api/foods/bahaha', function(error, response){
+    afterEach((done) => {
+      database.raw('TRUNCATE foods RESTART IDENTITY')
+      .then(() => done())
+    });
+
+    it('should return a 404 if the resource is not found', (done) => {
+      this.request.get('/api/foods/10000', (error, response) => {
         if(error) { done(error) }
         assert.equal(response.statusCode, 404);
         done();
       });
     });
 
-    it('should return a 200 if the resource is found', function(done){
-      this.request.get('/api/foods/wowowow', function(error, response){
+    it('should return the id and message from the resource found', (done) => {
+
+      this.request.get('/api/foods/1', (error, response) => {
         if(error) { done(error) }
-        assert.equal(response.statusCode, 200);
-        assert(response.body.includes('wowowow'), 'ID was not included');
-        assert(response.body.includes('I am a banana'), 'ID was not included');
-          done();
+
+        const id = 1
+        const name = "Sweet Baby Rays"
+        const calories = 2000
+
+        let parsedFood = JSON.parse(response.body)
+
+        assert.equal(parsedFood.id, id)
+        assert.equal(parsedFood.name, name)
+        assert.equal(parsedFood.calories, calories)
+        assert.ok(parsedFood.created_at)
+
+        done();
       });
     });
   });
 
-  describe('POST /api/foods', function(){
+  xdescribe('POST /api/foods', function(){
     beforeEach(function(){
       app.locals.foods = {}
     });
 
-    it('should not return 404', function(done){
+    xit('should not return 404', function(done){
       this.request.post('/api/foods', function(error, response){
         if (error) { done(error) }
         assert.notEqual(response.statusCode, 404)
@@ -74,7 +104,7 @@ describe("Server", function(){
       });
     });
 
-    it('should receive and store data', function(done){
+    xit('should receive and store data', function(done){
       var message = { message: 'I dont like Pineapples on my pizza'};
 
       this.request.post('/api/foods', { form: message }, function(error, response){
