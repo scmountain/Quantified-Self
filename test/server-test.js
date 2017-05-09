@@ -70,7 +70,7 @@ describe("Server", function(){
       });
     });
 
-    it('should return the id and message from the resource found', (done) => {
+    it('should return name, calories, and id from the resource found', (done) => {
 
       this.request.get('/api/foods/1', (error, response) => {
         if(error) { done(error) }
