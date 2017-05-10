@@ -98,7 +98,7 @@ describe("Server", function(){
           baseUrl: 'http://localhost:9876/'
         });
 
-     this.timeout(100000);
+    //  this.timeout(100000);
     xit('should not return 404', function(done){
     });
 
