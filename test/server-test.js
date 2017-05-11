@@ -94,6 +94,43 @@ describe("Server", function(){
       });
     });
 
+    context('GET /api/foods', () => {
+      beforeEach((done) => {
+        database.raw(`INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['Sweet Baby Rays', 2000, new Date],
+                            `INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['We The Best HotSauce', 1000, new Date])
+        .then(() => done())
+        .catch(done);
+      });
+
+      afterEach((done) => {
+        database.raw('TRUNCATE foods RESTART IDENTITY')
+        .then(() => done())
+        .catch(done);
+      });
+
+      it('gets all foods from the database', () => {
+        this.request.get('/api/v1/foods', (error, response) => {
+          const foodItemId1 = 1
+          const foodItemName1 = "Sweet Baby Rays"
+          const foodItemCalories1 = 3000
+
+          const foodItemId2 = 2
+          const foodItemName2 = "We The Best HotSauce"
+          const foodItemCalories2 = 1000
+
+          const parsedFoods = JSON.parse(response.body)
+
+          assert.equal(parsedFood[0].id, foodItemId1)
+          assert.equal(parsedFood[0].name, foodItemName1)
+          assert.equal(parsedFood[0].calories, foodItemCalories1)
+
+          assert.equal(parsedFood[1].id, foodItemId2)
+          assert.equal(parsedFood[1].name, foodItemName2)
+          assert.equal(parsedFood[1].calories, foodItemCalories2)
+        })
+      })
+    })
+
     context('POST /api/foods', function(){
       var close_request = request.defaults({
             baseUrl: 'http://localhost:9876/'
