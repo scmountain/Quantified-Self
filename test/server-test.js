@@ -101,16 +101,22 @@ describe("Server", function(){
           });
 
        this.timeout(100000);
-      xit('should not return 404', function(done){
+
+      it('should not be a 404 error', (done) => {
+        close_request.post('/api/v1/foods/', (error, response) => {
+          if(error) { done(error) }
+          assert.notEqual(response.statusCode, 404);
+          done();
+        });
       });
 
       it('should receive and store data', function(done){
-        var food = { name: 'apple', calories: 100}
+        let food = { name: 'apple', calories: 100}
 
-        close_request.post('/api/foods', {form: food}, (error, response) =>{
+        close_request.post('/api/v1/foods', {form: food}, (error, response) =>{
           if (error) { done(error) }
-            let parsedFood = JSON.parse(response.body.toString());
-            assert.equal(response.statusCode, 200)
+            eval (pry.it)
+            assert.equal(response.statusCode, 201)
             done();
         });
       });
