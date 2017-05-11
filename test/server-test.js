@@ -1,6 +1,7 @@
 const assert = require('chai').assert;
 const app = require('../server');
 const request = require('request');
+const pry = require('pryjs')
 
 
 const environment   = process.env.NODE_ENV || 'test'
@@ -29,7 +30,7 @@ describe("Server", function(){
     assert(app);
   });
 
-  describe('GET /', () => {
+  context('GET /', () => {
     it('should return a 200', (done) => {
       this.request.get('/', (error, response) => {
         if (error) { done(error) }
@@ -53,64 +54,69 @@ describe("Server", function(){
     });
   });
 
-  describe('GET /api/foods/:id', () => {
-    beforeEach((done) => {
-      database.raw(`INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['Sweet Baby Rays', 2000, new Date])
-      .then(() => done())
-    });
-
-    afterEach((done) => {
-      database.raw('TRUNCATE foods RESTART IDENTITY')
-      .then(() => done())
-    });
-
-    it('should return a 404 if the resource is not found', (done) => {
-      this.request.get('/api/foods/10000', (error, response) => {
-        if(error) { done(error) }
-        assert.equal(response.statusCode, 404);
-        done();
+    context('GET /api/v1/foods/:id', () => {
+      beforeEach((done) => {
+        database.raw(`INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['Sweet Baby Rays', 2000, new Date])
+        .then(() => done())
+        .catch(done);
       });
-    });
 
-    it('should return name, calories, and id from the resource found', (done) => {
-
-      this.request.get('/api/foods/1', (error, response) => {
-        if(error) { done(error) }
-
-        const id = 1
-        const name = "Sweet Baby Rays"
-        const calories = 2000
-
-        let parsedFood = JSON.parse(response.body)
-
-        assert.equal(parsedFood.id, id)
-        assert.equal(parsedFood.name, name)
-        assert.equal(parsedFood.calories, calories)
-        assert.ok(parsedFood.created_at)
-
-        done();
+      afterEach((done) => {
+        database.raw('TRUNCATE foods RESTART IDENTITY')
+        .then(() => done())
+        .catch(done);
       });
-    });
-  });
 
-  describe('POST /api/foods', function(){
-    var close_request = request.defaults({
-          baseUrl: 'http://localhost:9876/'
-        });
-
-     this.timeout(100000);
-    xit('should not return 404', function(done){
-    });
-
-    it('should receive and store data', function(done){
-      var food = { name: 'apple', calories: 100}
-
-      close_request.post('/api/foods', {form: food}, (error, response) =>{
-        if (error) { done(error) }
-          let parsedFood = JSON.parse(response.body.toString());
-          assert.equal(response.statusCode, 200)
+      it('should return a 404 if the resource is not found', (done) => {
+        this.request.get('/api/v1/foods/100000', (error, response) => {
+          if(error) { done(error) }
+          assert.equal(response.statusCode, 404);
           done();
+        });
+      });
+
+      it('should return name, calories, and id from the resource found', (done) => {
+
+        this.request.get('/api/v1/foods/1', (error, response) => {
+          if(error) { done(error) }
+
+          const id = 1
+          const name = "Sweet Baby Rays"
+          const calories = 2000
+
+          let parsedFood = JSON.parse(response.body)
+
+          assert.equal(parsedFood.id, id)
+          assert.equal(parsedFood.name, name)
+          assert.equal(parsedFood.calories, calories)
+          assert.ok(parsedFood.created_at)
+
+          done();
+        });
       });
     });
-  });
+
+    context('POST /api/foods', function(){
+      var close_request = request.defaults({
+            baseUrl: 'http://localhost:9876/'
+          });
+
+      it('should not be a 404 error', (done) => {
+        close_request.post('/api/v1/foods/', (error, response) => {
+          if(error) { done(error) }
+          assert.notEqual(response.statusCode, 404);
+          done();
+        });
+      });
+
+      it('should receive and store data', function(done){
+        let food = { name: 'apple', calories: 100}
+
+        close_request.post('/api/v1/foods', {form: food}, (error, response) =>{
+          if (error) { done(error) }
+            assert.equal(response.statusCode, 201)
+            done();
+        });
+      });
+    });
 });
