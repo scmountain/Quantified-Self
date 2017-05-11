@@ -100,8 +100,6 @@ describe("Server", function(){
             baseUrl: 'http://localhost:9876/'
           });
 
-       this.timeout(100000);
-
       it('should not be a 404 error', (done) => {
         close_request.post('/api/v1/foods/', (error, response) => {
           if(error) { done(error) }
@@ -115,7 +113,6 @@ describe("Server", function(){
 
         close_request.post('/api/v1/foods', {form: food}, (error, response) =>{
           if (error) { done(error) }
-            eval (pry.it)
             assert.equal(response.statusCode, 201)
             done();
         });
