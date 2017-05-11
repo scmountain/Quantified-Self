@@ -15,7 +15,6 @@ describe("Server", function(){
         done()
       });
 
-      this.timeout(100000);
       this.request = request.defaults({
           baseUrl: 'http://localhost:9876/'
         });
