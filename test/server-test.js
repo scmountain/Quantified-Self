@@ -95,12 +95,21 @@ describe("Server", function(){
     });
 
     context('GET /api/foods', () => {
-      beforeEach((done) => {
-        database.raw(`INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['Sweet Baby Rays', 2000, new Date],
-                            `INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['We The Best HotSauce', 1000, new Date])
-        .then(() => done())
-        .catch(done);
+      // beforeEach((done) => {
+      //   database.raw(`INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['Sweet Baby Rays', 2000, new Date]).then(() => {
+      //     database.raw(`INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['Sweet Baby Rays', 2000, new Date])
+      //     }).then((done) => done())
+      //   });
+
+        beforeEach((done) => {
+          database.raw('INSERT INTO foods (name, calories) VALUES (?, ?)', ['banana', 35]).then (() => {
+          database.raw('INSERT INTO foods (name, calories) VALUES (?, ?)', ['strawberry', 40]).then (() => {
+          database.raw('INSERT INTO foods (name, calories) VALUES (?, ?)', ['cereal', 135]).then (() => {
+            done()
+          });
+        });
       });
+    });
 
       afterEach((done) => {
         database.raw('TRUNCATE foods RESTART IDENTITY')
@@ -120,13 +129,13 @@ describe("Server", function(){
 
           const parsedFoods = JSON.parse(response.body)
 
-          assert.equal(parsedFood[0].id, foodItemId1)
-          assert.equal(parsedFood[0].name, foodItemName1)
-          assert.equal(parsedFood[0].calories, foodItemCalories1)
+          assert.equal(parsedFoods[0].id, foodItemId1)
+          assert.equal(parsedFoods[0].name, foodItemName1)
+          assert.equal(parsedFoods[0].calories, foodItemCalories1)
 
-          assert.equal(parsedFood[1].id, foodItemId2)
-          assert.equal(parsedFood[1].name, foodItemName2)
-          assert.equal(parsedFood[1].calories, foodItemCalories2)
+          assert.equal(parsedFoods[1].id, foodItemId2)
+          assert.equal(parsedFoods[1].name, foodItemName2)
+          assert.equal(parsedFoods[1].calories, foodItemCalories2)
         })
       })
     })
