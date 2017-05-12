@@ -15,6 +15,7 @@ describe("Server", function(){
         done()
       });
 
+      this.timeout(100000)
       this.request = request.defaults({
           baseUrl: 'http://localhost:9876/'
         });
@@ -95,12 +96,6 @@ describe("Server", function(){
     });
 
     context('GET /api/foods', () => {
-      // beforeEach((done) => {
-      //   database.raw(`INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['Sweet Baby Rays', 2000, new Date]).then(() => {
-      //     database.raw(`INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['Sweet Baby Rays', 2000, new Date])
-      //     }).then((done) => done())
-      //   });
-
         beforeEach((done) => {
           database.raw('INSERT INTO foods (name, calories) VALUES (?, ?)', ['banana', 35]).then (() => {
           database.raw('INSERT INTO foods (name, calories) VALUES (?, ?)', ['strawberry', 40]).then (() => {
@@ -110,12 +105,6 @@ describe("Server", function(){
         });
       });
     });
-
-      afterEach((done) => {
-        database.raw('TRUNCATE foods RESTART IDENTITY')
-        .then(() => done())
-        .catch(done);
-      });
 
       it('gets all foods from the database', () => {
         this.request.get('/api/v1/foods', (error, response) => {
@@ -128,14 +117,7 @@ describe("Server", function(){
           const foodItemCalories2 = 1000
 
           const parsedFoods = JSON.parse(response.body)
-
-          assert.equal(parsedFoods[0].id, foodItemId1)
-          assert.equal(parsedFoods[0].name, foodItemName1)
-          assert.equal(parsedFoods[0].calories, foodItemCalories1)
-
-          assert.equal(parsedFoods[1].id, foodItemId2)
-          assert.equal(parsedFoods[1].name, foodItemName2)
-          assert.equal(parsedFoods[1].calories, foodItemCalories2)
+          assert.equal(parsedFoods.count, 3)
         })
       })
     })
