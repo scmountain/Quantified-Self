@@ -1,3 +1,4 @@
+
 const assert = require('chai').assert;
 const app = require('../server');
 const request = require('request');
@@ -15,7 +16,7 @@ describe("Server", function(){
         done()
       });
 
-      this.timeout(100000)
+      // this.timeout(100000)
       this.request = request.defaults({
           baseUrl: 'http://localhost:9876/'
         });
@@ -53,7 +54,7 @@ describe("Server", function(){
     });
   });
 
-    context('GET /api/v1/foods/:id', () => {
+    context('GET /api/v1/foods/:id', (done) => {
       beforeEach((done) => {
         database.raw(`INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['Sweet Baby Rays', 2000, new Date])
         .then(() => done())
@@ -118,11 +119,12 @@ describe("Server", function(){
 
           const parsedFoods = JSON.parse(response.body)
           assert.equal(parsedFoods.count, 3)
-        })
-      })
-    })
+        });
+      });
+    });
 
-    context('POST /api/foods', function(){
+
+    context('POST /api/foods', function(done){
       var close_request = request.defaults({
             baseUrl: 'http://localhost:9876/'
           });
@@ -145,4 +147,5 @@ describe("Server", function(){
         });
       });
     });
-});
+  });
+
