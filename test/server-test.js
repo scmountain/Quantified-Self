@@ -119,4 +119,27 @@ describe("Server", function(){
         });
       });
     });
+
+    context('DELETE /api/v1/foods/:id', () =>{
+
+      beforeEach((done) => {
+        database.raw('INSERT INTO foods (name, calories) VALUES (?, ?)', ['Sweet Baby Rays', 2000])
+        .then(() => done())
+        .catch(done);
+      });
+
+      // afterEach((done) => {
+      //   database.raw('TRUNCATE foods RESTART IDENTITY')
+      //   .then(() => done ())
+      //   .catch(done);
+      // });
+
+      it('should delete a food item', (done) => {
+        this.request.delete('/api/v1/foods/1', (error,response) => {
+          if (error) { done(error) }
+          // eval (pry.it)
+          assert.equal(response.statusCode, 200)
+        });
+      });
+    });
 });
