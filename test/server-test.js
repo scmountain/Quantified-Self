@@ -54,6 +54,47 @@ describe("Server", function(){
     });
   });
 
+  context('PUT /api/v1/foods/1', () => {
+
+    beforeEach((done) => {
+      database.raw(`INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['Sweet Baby Rays', 2000, new Date])
+      .then(() => done())
+      .catch(done);
+    });
+
+    afterEach((done) => {
+      database.raw('TRUNCATE foods RESTART IDENTITY')
+      .then(() => done())
+      .catch(done);
+    });
+
+    xit('should return a 200', (done) => {
+      this.request.get('/', (error, response) => {
+        if (error) { done(error) }
+
+        assert.equal(response.statusCode, 200);
+
+        done()
+      });
+    });
+
+    xit('should update a food entry', (done) => {
+      var title = app.locals.title
+
+      this.request.put('/api/v1/foods/1', (error, response) => {
+        if (error) { done(error) }
+
+        let parsedFood = JSON.parse(response.body)
+
+        assert.equal(parsedFood.id, id)
+        assert.equal(parsedFood.name, name)
+        assert.equal(parsedFood.calories, calories)
+        assert.ok(parsedFood.created_at)
+        done()
+      });
+    });
+  });
+
     context('GET /api/v1/foods/:id', () => {
       beforeEach((done) => {
         database.raw(`INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['Sweet Baby Rays', 2000, new Date])
@@ -128,16 +169,16 @@ describe("Server", function(){
         .catch(done);
       });
 
-      // afterEach((done) => {
-      //   database.raw('TRUNCATE foods RESTART IDENTITY')
-      //   .then(() => done ())
-      //   .catch(done);
-      // });
+      afterEach((done) => {
+        database.raw('TRUNCATE foods RESTART IDENTITY')
+        .then(() => done ())
+        .catch(done);
+      });
 
-      it('should delete a food item', (done) => {
+      it('should return 201', (done) => {
         this.request.delete('/api/v1/foods/1', (error,response) => {
           if (error) { done(error) }
-          // eval (pry.it)
+          done();
           assert.equal(response.statusCode, 200)
         });
       });
