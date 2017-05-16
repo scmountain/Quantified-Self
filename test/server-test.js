@@ -68,28 +68,19 @@ describe("Server", function(){
       .catch(done);
     });
 
-    xit('should return a 200', (done) => {
-      this.request.get('/', (error, response) => {
-        if (error) { done(error) }
+    const newFood = {name: 'Krispy Kreme',
+                    calories: 300};
 
-        assert.equal(response.statusCode, 200);
-
-        done()
-      });
-    });
-
-    xit('should update a food entry', (done) => {
+    it('should update a food entry', (done) => {
       var title = app.locals.title
 
-      this.request.put('/api/v1/foods/1', (error, response) => {
+      this.request.put('/api/v1/foods/1', {form: newFood}, (error, response) => {
         if (error) { done(error) }
 
         let parsedFood = JSON.parse(response.body)
-
-        assert.equal(parsedFood.id, id)
-        assert.equal(parsedFood.name, name)
-        assert.equal(parsedFood.calories, calories)
-        assert.ok(parsedFood.created_at)
+        assert.equal(parsedFood[0].id, id)
+        assert.equal(parsedFood[0].name, 'Krispy Kreme')
+        assert.equal(parsedFood[0].calories, 300)
         done()
       });
     });
@@ -142,7 +133,7 @@ describe("Server", function(){
             baseUrl: 'http://localhost:9876/'
           });
 
-      it('should not be a 404 error', (done) => {
+      it('should not be a 404 error', function(done) {
         close_request.post('/api/v1/foods/', (error, response) => {
           if(error) { done(error) }
           assert.notEqual(response.statusCode, 404);
@@ -153,9 +144,21 @@ describe("Server", function(){
       it('should receive and store data', function(done){
         let food = { name: 'apple', calories: 100}
 
+        close_request.post('/api/v1/foods', {body: food, json: true}, (error, response) =>{
+          if (error) { done(error) }
+            assert.equal(response.statusCode, 200)
+            done();
+        });
+      });
+
+      it('should return food that was created', function(done){
+        let food = { name: 'apple', calories: 100}
+        this.timeout(1000000)
+
         close_request.post('/api/v1/foods', {form: food}, (error, response) =>{
           if (error) { done(error) }
-            assert.equal(response.statusCode, 201)
+            let parsedFood = JSON.parse(response.body)
+            assert.equal(parsedFood.rows[0].name, food.name)
             done();
         });
       });
@@ -163,13 +166,13 @@ describe("Server", function(){
 
     context('DELETE /api/v1/foods/:id', () =>{
 
-      beforeEach((done) => {
+      beforeEach(function(done) {
         database.raw('INSERT INTO foods (name, calories) VALUES (?, ?)', ['Sweet Baby Rays', 2000])
         .then(() => done())
         .catch(done);
       });
 
-      afterEach((done) => {
+      afterEach(function(done) {
         database.raw('TRUNCATE foods RESTART IDENTITY')
         .then(() => done ())
         .catch(done);
