@@ -1,3 +1,4 @@
+
 const assert = require('chai').assert;
 const app = require('../server');
 const request = require('request');
@@ -16,7 +17,6 @@ describe("Server", function(){
         done()
       });
 
-      this.timeout(100000);
       this.request = request.defaults({
           baseUrl: 'http://localhost:9876/'
         });
@@ -71,7 +71,7 @@ describe("Server", function(){
     const newFood = {name: 'Krispy Kreme',
                     calories: 300};
 
-    it('should update a food entry', (done) => {
+    xit('should update a food entry', (done) => {
       var title = app.locals.title
 
       this.request.put('/api/v1/foods/1', {form: newFood}, (error, response) => {
@@ -86,7 +86,7 @@ describe("Server", function(){
     });
   });
 
-    context('GET /api/v1/foods/:id', () => {
+    context('GET /api/v1/foods/:id', (done) => {
       beforeEach((done) => {
         database.raw(`INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['Sweet Baby Rays', 2000, new Date])
         .then(() => done())
@@ -128,7 +128,35 @@ describe("Server", function(){
       });
     });
 
-    context('POST /api/foods', function(){
+    context('GET /api/foods', () => {
+        beforeEach((done) => {
+          database.raw('INSERT INTO foods (name, calories) VALUES (?, ?)', ['banana', 35]).then (() => {
+          database.raw('INSERT INTO foods (name, calories) VALUES (?, ?)', ['strawberry', 40]).then (() => {
+          database.raw('INSERT INTO foods (name, calories) VALUES (?, ?)', ['cereal', 135]).then (() => {
+            done()
+          });
+        });
+      });
+    });
+
+      it('gets all foods from the database', () => {
+        this.request.get('/api/v1/foods', (error, response) => {
+          const foodItemId1 = 1
+          const foodItemName1 = "Sweet Baby Rays"
+          const foodItemCalories1 = 3000
+
+          const foodItemId2 = 2
+          const foodItemName2 = "We The Best HotSauce"
+          const foodItemCalories2 = 1000
+
+          const parsedFoods = JSON.parse(response.body)
+          assert.equal(parsedFoods.count, 3)
+        });
+      });
+    });
+
+
+    context('POST /api/foods', function(done){
       var close_request = request.defaults({
             baseUrl: 'http://localhost:9876/'
           });
