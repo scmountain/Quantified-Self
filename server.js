@@ -3,10 +3,10 @@ const app = express();
 const bodyParser = require('body-parser');
 const md5 = require('md5');
 const cors = require('cors');
+const FoodsController = require('./lib/controllers/foods-controller')
 
 app.use(cors( { origin: '*' } ))
 
-const FoodsController = require('./lib/controllers/foods-controller')
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
