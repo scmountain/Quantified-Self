@@ -20,7 +20,9 @@ describe('Food model', function(){
       });
 
   it('tests the methods on the model', function(){
-    const data = Food.find(1)
+    const data = Food.find(1).then(function(data) {
+      data
+    })
     console.log(data)
     assert.equal(data, 'Sweet Baby Rays')
   })
