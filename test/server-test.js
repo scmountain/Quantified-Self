@@ -63,13 +63,13 @@ describe("Server", function(){
     });
 
     afterEach(function(done) {
-      database.raw('TRUNCATE foods RESTART IDENTITY')
+      database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
       .then(() => done())
       .catch(done);
     });
 
     it('should update a food entry', (done) => {
-      var newFood = { name: 'babies', calories: '350'}
+      var newFood = { name: 'chocolate', calories: '350'}
 
       this.request.put('/api/v1/foods/1', {form: newFood}, (error, response) => {
         if (error) { done(error) }
@@ -77,7 +77,7 @@ describe("Server", function(){
         let parsedFood = JSON.parse(response.body)
 
         assert.equal(parsedFood.rows[0].id, 1)
-        assert.equal(parsedFood.rows[0].name, 'babies')
+        assert.equal(parsedFood.rows[0].name, 'chocolate')
         assert.equal(parsedFood.rows[0].calories, 350)
         done()
       });
@@ -92,7 +92,7 @@ describe("Server", function(){
       });
 
       afterEach((done) => {
-        database.raw('TRUNCATE foods RESTART IDENTITY')
+        database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
         .then(() => done())
         .catch(done);
       });
@@ -153,7 +153,6 @@ describe("Server", function(){
       });
     });
 
-
     context('POST /api/foods', function(done){
       var close_request = request.defaults({
             baseUrl: 'http://localhost:9876/'
@@ -199,7 +198,7 @@ describe("Server", function(){
       });
 
       afterEach(function(done) {
-        database.raw('TRUNCATE foods RESTART IDENTITY')
+        database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
         .then(() => done ())
         .catch(done);
       });
@@ -212,4 +211,51 @@ describe("Server", function(){
         });
       });
     });
-});
+
+    context('GET /meals with params', function() {
+                  beforeEach((done) => {
+                        database.raw('INSERT INTO foods (name, calories) VALUES (?, ?)', ['banana', 35]).then (() => {
+                        database.raw('INSERT INTO foods (name, calories) VALUES (?, ?)', ['strawberry', 40]).then (() => {
+                        database.raw('INSERT INTO foods (name, calories) VALUES (?, ?)', ['cereal', 135]).then (() => {
+                        database.raw('INSERT INTO diary (day) VALUES (?)', ['05/16/17']).then (() => {
+                        database.raw('INSERT INTO diary (day) VALUES (?)', ['05/17/17']).then (() => {
+                        database.raw('INSERT INTO diary (day) VALUES (?)', ['05/18/17']).then (() => {
+                        database.raw(`INSERT INTO meals (meal, foods_id, diary_id) VALUES (?, ?, ?)`, ['breakfast', 1, 1]).then (() => {
+                        database.raw(`INSERT INTO meals (meal, foods_id, diary_id) VALUES (?, ?, ?)`, ['lunch', 2, 2]).then (() => {
+                        database.raw(`INSERT INTO meals (meal, foods_id, diary_id) VALUES (?, ?, ?)`, ['dinner', 3, 3]).then (() => {
+                          done()
+                        });
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+
+      afterEach(function(done) {
+        database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
+        .then(() => done ())
+        .catch(done);
+      });
+
+      var close_request = request.defaults({
+        baseUrl: 'http://localhost:9876/'
+      });
+
+      this.timeout(100000)
+      it('should return all meals', (done) => {
+        close_request.get('/api/v1/meals?day=05/17/17&meal=lunch', (error, response) => {
+          if (error) { done(error) }
+          done();
+
+          const parsedMeals = JSON.parse(response.body)
+          assert.equal(parsedMeals.name, 'strawberry')
+          assert.equal(parsedMeals.meal, 'lunch')
+          assert.equal(parsedMeals.day.toJSON, "" )
+        });
+      });
+    });
+  });
