@@ -56,31 +56,29 @@ describe("Server", function(){
 
   context('PUT /api/v1/foods/1', () => {
 
-    beforeEach((done) => {
-      database.raw(`INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`, ['Sweet Baby Rays', 2000, new Date])
+    beforeEach(function(done) {
+      database.raw(`INSERT INTO foods (ID, NAME, CALORIES) VALUES (1, 'flowers', 2000);`)
       .then(() => done())
       .catch(done);
     });
 
-    afterEach((done) => {
+    afterEach(function(done) {
       database.raw('TRUNCATE foods RESTART IDENTITY')
       .then(() => done())
       .catch(done);
     });
 
-    const newFood = {name: 'Krispy Kreme',
-                    calories: 300};
-
-    xit('should update a food entry', (done) => {
-      var title = app.locals.title
+    it('should update a food entry', (done) => {
+      var newFood = { name: 'babies', calories: '350'}
 
       this.request.put('/api/v1/foods/1', {form: newFood}, (error, response) => {
         if (error) { done(error) }
-
+        this.timeout(100000)
         let parsedFood = JSON.parse(response.body)
-        assert.equal(parsedFood[0].id, id)
-        assert.equal(parsedFood[0].name, 'Krispy Kreme')
-        assert.equal(parsedFood[0].calories, 300)
+
+        assert.equal(parsedFood.rows[0].id, 1)
+        assert.equal(parsedFood.rows[0].name, 'babies')
+        assert.equal(parsedFood.rows[0].calories, 350)
         done()
       });
     });
