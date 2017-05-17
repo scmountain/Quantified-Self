@@ -63,7 +63,7 @@ describe("Server", function(){
     });
 
     afterEach(function(done) {
-      database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
+      database.raw('TRUNCATE foods, meals, diary RESTART IDENTITY CASCADE')
       .then(() => done())
       .catch(done);
     });
@@ -92,7 +92,7 @@ describe("Server", function(){
       });
 
       afterEach((done) => {
-        database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
+        database.raw('TRUNCATE foods, meals, diary RESTART IDENTITY CASCADE')
         .then(() => done())
         .catch(done);
       });
@@ -198,7 +198,7 @@ describe("Server", function(){
       });
 
       afterEach(function(done) {
-        database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
+        database.raw('TRUNCATE foods, meals, diary RESTART IDENTITY CASCADE')
         .then(() => done ())
         .catch(done);
       });
@@ -236,7 +236,7 @@ describe("Server", function(){
       });
 
       afterEach(function(done) {
-        database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
+        database.raw('TRUNCATE foods, meals, diary RESTART IDENTITY CASCADE')
         .then(() => done ())
         .catch(done);
       });
