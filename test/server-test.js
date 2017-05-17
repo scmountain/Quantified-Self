@@ -63,7 +63,7 @@ describe("Server", function(){
     });
 
     afterEach(function(done) {
-      database.raw('TRUNCATE foods RESTART IDENTITY')
+      database.raw('TRUNCATE foods CASCADE')
       .then(() => done())
       .catch(done);
     });
@@ -92,7 +92,7 @@ describe("Server", function(){
       });
 
       afterEach((done) => {
-        database.raw('TRUNCATE foods RESTART IDENTITY')
+        database.raw('TRUNCATE foods CASCADE')
         .then(() => done())
         .catch(done);
       });
@@ -115,7 +115,7 @@ describe("Server", function(){
           const calories = 2000
 
           let parsedFood = JSON.parse(response.body)
-
+          console.log(parsedFood)
           assert.equal(parsedFood.id, id)
           assert.equal(parsedFood.name, name)
           assert.equal(parsedFood.calories, calories)
@@ -136,10 +136,7 @@ describe("Server", function(){
         });
       });
     });
-
-
-    });
-
+  });
 
     context('POST /api/foods', function(done){
       var close_request = request.defaults({
@@ -186,7 +183,7 @@ describe("Server", function(){
       });
 
       afterEach(function(done) {
-        database.raw('TRUNCATE foods RESTART IDENTITY')
+        database.raw('TRUNCATE foods CASCADE')
         .then(() => done ())
         .catch(done);
       });
