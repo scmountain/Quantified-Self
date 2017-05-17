@@ -136,7 +136,22 @@ describe("Server", function(){
         });
       });
     });
-  });
+
+      it('gets all foods from the database', () => {
+        this.request.get('/api/v1/foods', (error, response) => {
+          const foodItemId1 = 1
+          const foodItemName1 = "Sweet Baby Rays"
+          const foodItemCalories1 = 3000
+
+          const foodItemId2 = 2
+          const foodItemName2 = "We The Best HotSauce"
+          const foodItemCalories2 = 1000
+
+          const parsedFoods = JSON.parse(response.body)
+          assert.equal(parsedFoods.count, 3)
+        });
+      });
+    });
 
     context('POST /api/foods', function(done){
       var close_request = request.defaults({
