@@ -6,7 +6,6 @@ const environment   = process.env.NODE_ENV || 'test'
 const configuration = require('../knexfile')[environment]
 const database      = require('knex')(configuration)
 
-
 describe('Food model', function(){
   beforeEach((done) => {
     database.raw(`INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)`,
@@ -24,7 +23,6 @@ describe('Food model', function(){
                 .then((data) => {
                   return data
                 });
-                eval (pry.it)
     assert.equal(data, 'Sweet Baby Rays')
   })
 })
