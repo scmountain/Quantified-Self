@@ -246,7 +246,7 @@ describe("Server", function(){
       });
 
       this.timeout(100000)
-      it('should return all meals', (done) => {
+      it('should return meals when given date and meal', (done) => {
         close_request.get('/api/v1/meals?day=05/17/17&meal=lunch', (error, response) => {
           if (error) { done(error) }
           done();
